@@ -1,8 +1,8 @@
 export type WorkTag =
-  typeof FunctionComponent
-  | typeof HostRoot
-  | typeof HostComponent
-  | typeof HostText;
+	| typeof FunctionComponent
+	| typeof HostRoot
+	| typeof HostComponent
+	| typeof HostText;
 
 export const FunctionComponent = 0;
 // ReactDOM.render() 挂载的根节点
