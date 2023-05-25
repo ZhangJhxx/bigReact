@@ -1,11 +1,13 @@
 // 全局的指针指向正在工作的fiberNode
-import { FiberNode } from './fiber';
+import { FiberNode, FiberRootNode, createWorkInProgress } from './fiber';
 import { beginWork } from './beginWork';
 import { completeWork } from './completeWork';
+import { HostRoot } from './workTags';
 
 let workInProgress: FiberNode | null = null;
-function prepareFreshStack(fiber: FiberNode) {
-	workInProgress = fiber;
+function prepareFreshStack(root: FiberRootNode) {
+	// workInProgress = fiber;
+	workInProgress = createWorkInProgress(root.current, {});
 }
 
 function completeUnitOfWork(fiber: FiberNode) {
@@ -39,7 +41,7 @@ function workLoop() {
 	}
 }
 
-function renderRoot(root: FiberNode) {
+function renderRoot(root: FiberRootNode) {
 	// 初始化
 	prepareFreshStack(root);
 
@@ -52,4 +54,26 @@ function renderRoot(root: FiberNode) {
 			workInProgress = null;
 		}
 	} while (true);
+}
+
+// 连接renderRoot 和 updateContainer
+export function scheduleUpdateOnFiber(fiber: FiberNode) {
+	// 调度功能
+	// 从当前传进来的fiber找到根节点fiberRootNode
+	const root = markUpdateFromFiberToRoot(fiber);
+	renderRoot(root);
+}
+
+// 查找 fiberRootNode
+function markUpdateFromFiberToRoot(fiber: FiberNode) {
+	let node = fiber;
+	let parent = node.return;
+	while (parent !== null) {
+		node = parent;
+		parent = node.return;
+	}
+	if (node.tag === HostRoot) {
+		return node.stateNode;
+	}
+	return null;
 }
